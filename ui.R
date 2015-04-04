@@ -6,9 +6,9 @@
 #
 
 library(shiny)
-library("scatterplot3d", lib.loc="~/R/win-library/3.1")
+library("scatterplot3d")
 source("mongo.R")
-
+library("threejs")
 mongo <- mongoHelper$connect()
 attribs <- c("Select",names(mongoHelper$findAllAttributes(mongo)))
 
@@ -29,12 +29,21 @@ shinyUI(fluidPage(
         selectInput("selectZ", label = h3("Select z"), choices = attribs, selected = 1)
       )
   ),
+
     
   mainPanel(
-    textOutput("selectX"),
-    textOutput("selectY"),
-    textOutput("selectZ"),
-    plotOutput("plotGraphics")
+    column(12,
+      textOutput("selectX"),
+      textOutput("selectY"),
+      textOutput("selectZ")
+    ),
+    column(12,
+      plotOutput("plotGraphics")
+    ),
+    column(12,
+    scatterplotThreeOutput("scatterplot")
+    )
+    
   )
   
 )))

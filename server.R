@@ -6,8 +6,10 @@
 #
 
 library(shiny)
-library("scatterplot3d", lib.loc="~/R/win-library/3.1")
+library("scatterplot3d")
 source("mongo.R")
+library("threejs")
+
 
 
 xyz <- read.csv(file="pakDatMesh_ztranslation.csv",header=FALSE,sep=";");
@@ -15,10 +17,13 @@ x <- xyz$V1
 y <- xyz$V2
 z <- xyz$V3
 
+
 mongo <- mongoHelper$connect()
 
 shinyServer(function(input, output) {
-  
+
+  set.seed(1)
+  if(!exists("example_data")) example_data <- matrix(runif(x*y*z),ncol=3)
 
   getX <- reactive({
     mongoHelper$findOneCache(mongo)$getX()
@@ -43,6 +48,10 @@ shinyServer(function(input, output) {
         plot.new()
         scatterplot3d(x,y,z, main="3D View")
       }) 
+      
+      output$scatterplot <- renderScatterplotThree({
+        scatterplot3js(x,y,z, color=rainbow(length(z)))
+      })
     }
   })
 
