@@ -4,21 +4,15 @@
 #
 # http://shiny.rstudio.com
 #
-
+source("mainScript.R")
+source("mongo.R")
 library(shiny)
 library("scatterplot3d")
-source("mongo.R")
 library("threejs")
 
 
 
-xyz <- read.csv(file="pakDatMesh_ztranslation.csv",header=FALSE,sep=";");
-x <- xyz$V1
-y <- xyz$V2
-z <- xyz$V3
 
-
-mongo <- mongoHelper$connect()
 
 shinyServer(function(input, output) {
 
@@ -26,11 +20,11 @@ shinyServer(function(input, output) {
   if(!exists("example_data")) example_data <- matrix(runif(x*y*z),ncol=3)
 
   getX <- reactive({
-    mongoHelper$findOneCache(mongo)$getX()
+    mongoHelper$findOneCache(input$selectX,input$selectY,input$selectZ)$getX()
   })
   
   getY <- reactive({
-    mongoHelper$findOneCache(mongo)$getY()
+    mongoHelper$findOneCache(input$selectX,input$selectY,input$selectZ)$getY()
   })
   
 
@@ -43,6 +37,9 @@ shinyServer(function(input, output) {
         plot.new()
         plot(getX(),getY(),xlab=input$selectX,ylab=input$selectY,type="o")
       }) 
+      output$scatterplot <- renderScatterplotThree({
+        scatterplot3js <- NULL
+      })
     }else{
       output$plotGraphics <- renderPlot({ 
         plot.new()
@@ -50,7 +47,7 @@ shinyServer(function(input, output) {
       }) 
       
       output$scatterplot <- renderScatterplotThree({
-        scatterplot3js(x,y,z, color=rainbow(length(z)))
+        scatterplot3js <- scatterplot3js(x,y,z, color=rainbow(length(z)))
       })
     }
   })

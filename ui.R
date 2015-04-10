@@ -5,33 +5,31 @@
 # http://shiny.rstudio.com
 #
 
+source("mainScript.R")
+source("mongo.R")
 library(shiny)
 library("scatterplot3d")
-source("mongo.R")
 library("threejs")
-mongo <- mongoHelper$connect()
-attribs <- c("Select",names(mongoHelper$findAllAttributes(mongo)))
 
+shinyUI(navbarPage("",
+                   tabPanel(
+                     selectInput("selectX", label = h3("x"), choices = attribs, selected = 1)
+                   ),
+                   tabPanel(
+                     selectInput("selectY", label = h3("y"), choices = attribs, selected = 1)
+                   ),
+                   tabPanel(
+                     selectInput("selectZ", label = h3("z"), choices = attribs, selected = 1)
+                   ),
 
-shinyUI(fluidPage(
-  
-  hr(),
-
-  sidebarLayout(
-    column(12,
-      sidebarPanel(
-      selectInput("selectX", label = h3("Select x"), choices = attribs, selected = 1)
-      ),
-      sidebarPanel(
-        selectInput("selectY", label = h3("Select y"), choices = attribs, selected = 1)
-      ),
-      sidebarPanel(
-        selectInput("selectZ", label = h3("Select z"), choices = attribs, selected = 1)
-      )
-  ),
-
-    
   mainPanel(
+    br(),
+    br(),
+    br(),
+    br(),
+    br(),
+    br(),
+    hr(),
     column(12,
       textOutput("selectX"),
       textOutput("selectY"),
@@ -40,10 +38,11 @@ shinyUI(fluidPage(
     column(12,
       plotOutput("plotGraphics")
     ),
+
     column(12,
     scatterplotThreeOutput("scatterplot")
     )
     
   )
   
-)))
+,position="fixed-top"))
