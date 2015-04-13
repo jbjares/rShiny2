@@ -23,11 +23,17 @@ mongoHelper <- list(
       }
 
       if(xName=="Select"){
-        paste("You must select at least Y and Z to show 2D view.")
+        #paste("You must select at least Y and Z to show 2D view.")
+        validate(
+          need(xName,"You must select at least Y and Z to show 2D view.")
+        )
         stop()
       }
       if(yName=="Select"){
-        paste("You must select at least Y and Z to show 2D view.")
+        #paste("You must select at least Y and Z to show 2D view.")
+        validate(
+          need(yName,"You must select at least Y and Z to show 2D view.")
+        )
         stop()
       }
       mongo.bson.buffer.append(buf, "xName", xName)
@@ -35,15 +41,21 @@ mongoHelper <- list(
       if(!is.null(zName) && zName!="" && zName!="Select"){
         mongo.bson.buffer.append(buf, "zName", zName)
       }
-      if(!is.null(zName) && zName=="Select"){
-        paste("Try select Z option to show 3D view.")
+      if(is.null(zName) || zName=="Select"){
+        #paste("Try select Z option to show 3D view.")
+        validate(
+          need(zName,"Try select Z option to show 3D view.")
+        )
       }
       
 
       query <- mongo.bson.from.buffer(buf)
       bson <- mongo.find.one(conn,dataSetCache,query)
       if(class(bson)!="mongo.bson"){
-        paste("Result not defined for query: ",query)
+        #paste("Result not defined for query: ",query)
+        validate(
+          need(query,"Result not defined for query")
+        )
         stop()
       }
       

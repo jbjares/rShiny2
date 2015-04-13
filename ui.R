@@ -13,13 +13,13 @@ library("threejs")
 
 shinyUI(navbarPage("",
                    tabPanel(
-                     selectInput("selectX", label = h3("x"), choices = attribs, selected = 1)
+                     selectInput("selectX", label = h3("coord x"), choices = attribs, selected = 1)
                    ),
                    tabPanel(
-                     selectInput("selectY", label = h3("y"), choices = attribs, selected = 1)
+                     selectInput("selectY", label = h3("coord y"), choices = attribs, selected = 1)
                    ),
                    tabPanel(
-                     selectInput("selectZ", label = h3("z"), choices = attribs, selected = 1)
+                     selectInput("selectZ", label = h3("coord z"), choices = attribs, selected = 1)
                    ),
 
   mainPanel(

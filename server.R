@@ -16,8 +16,8 @@ library("threejs")
 
 shinyServer(function(input, output) {
 
-  set.seed(1)
-  if(!exists("example_data")) example_data <- matrix(runif(x*y*z),ncol=3)
+  #set.seed(1)
+  #if(!exists("example_data")) example_data <- matrix(runif(x*y*z),ncol=3)
 
   getX <- reactive({
     mongoHelper$findOneCache(input$selectX,input$selectY,input$selectZ)$getX()
@@ -27,7 +27,9 @@ shinyServer(function(input, output) {
     mongoHelper$findOneCache(input$selectX,input$selectY,input$selectZ)$getY()
   })
   
-
+  getZ <- reactive({
+    mongoHelper$findOneCache(input$selectX,input$selectY,input$selectZ)$getZ()
+  })
   
   
   observe({
@@ -47,7 +49,7 @@ shinyServer(function(input, output) {
       }) 
       
       output$scatterplot <- renderScatterplotThree({
-        scatterplot3js <- scatterplot3js(x,y,z, color=rainbow(length(z)))
+        scatterplot3js <- scatterplot3js(getX(),getY(),getZ(), color=rainbow(length(z)))
       })
     }
   })

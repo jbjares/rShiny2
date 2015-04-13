@@ -14,10 +14,10 @@ installRequiredPackages <- function(){
 installRequiredPackages()
 
 
-xyz <- read.csv(file="pakDatMesh_ztranslation.csv",header=FALSE,sep=";");
-x <- xyz$V1
-y <- xyz$V2
-z <- xyz$V3
+#xyz <- read.csv(file="pakDatMesh_ztranslation.csv",header=FALSE,sep=";");
+#x <- xyz$V1
+#y <- xyz$V2
+#z <- xyz$V3
 
 
 #mongo <- mongoHelper$connect()
