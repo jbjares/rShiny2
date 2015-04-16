@@ -8,6 +8,7 @@
 source("mainScript.R")
 source("mongo.R")
 library(shiny)
+library(shinyBS)
 library("scatterplot3d")
 library("threejs")
 
@@ -21,9 +22,16 @@ shinyUI(navbarPage("",
                    tabPanel(
                      selectInput("selectZ", label = h3("coord z"), choices = attribs, selected = 1)
                    ),
+                   navbarMenu("More",
+                              tabPanel(actionButton("showInterpretationButton", label = "Show Semantic Interpretation")),
+                              tabPanel(actionButton("createQueryButton", label = "Query Input"))
+                   ),
 
   mainPanel(
-    br(),
+    tags$style(type="text/css",
+               ".shiny-output-error { visibility: hidden; }",
+               ".shiny-output-error:before { visibility: hidden; }"
+    ),
     br(),
     br(),
     br(),
@@ -36,11 +44,15 @@ shinyUI(navbarPage("",
       textOutput("selectZ")
     ),
     column(12,
+           bsAlert("showInterpretationAlert_anchorId")
+    ),
+    
+    column(12,
       plotOutput("plotGraphics")
     ),
 
     column(12,
-    scatterplotThreeOutput("scatterplot")
+      scatterplotThreeOutput("scatterplot")
     )
     
   )
