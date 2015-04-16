@@ -1,20 +1,4 @@
-
-parametersSchemaVar <- "sifem.TransformationTO"
-dataSetCacheSchemaVar <- "sifem.DataSetHashCacheTO"
-projectNameVar <- "PROJECTTEST"
-hostDesenv <- "127.0.0.1"
-usernameDesenv <-""
-passwordDesenv <- ""
-dbDesenv = "sifem"
-
-# parametersSchemaVar <- "multivision_jbjares.TransformationTO"
-# dataSetCacheSchemaVar <- "multivision_jbjares.DataSetHashCacheTO"
-# projectNameVar <- "PROJECTTEST"
-# hostDesenv <- "ds061371.mongolab.com:61371"
-# usernameDesenv <-"jbjares"
-# passwordDesenv <- "multivision"
-# dbDesenv = "multivision_jbjares"
-
+#mongo config: host, user, pass, db...
 
 
 mongoHelper <- list(
