@@ -95,7 +95,7 @@ shinyServer(function(input, output,session) {
     
     YNameVar <- input$selectY
     if(!is.null(YNameVar) && YNameVar!="NULL" && YNameVar!="" && YNameVar!="Select"){
-      baseURL <- paste0(baseURL,"YName=",YNameVar)
+      baseURL <- paste0(baseURL,"yName=",YNameVar)
     }
     
   })
@@ -104,15 +104,27 @@ shinyServer(function(input, output,session) {
   
 
   getX <- reactive({
-    mongoHelper$findOneCache(input$selectX,input$selectY,input$selectZ)$getX()
+    getXCache <- mongoHelper$findOneCache(input$selectX,input$selectY,input$selectZ,getProjectNameVar(),getSimulationNameVar())
+    if(!is.null(getXCache)){
+      getXCache$getX()
+    }
+
   })
   
   getY <- reactive({
-    mongoHelper$findOneCache(input$selectX,input$selectY,input$selectZ)$getY()
+    getYCache <- mongoHelper$findOneCache(input$selectX,input$selectY,input$selectZ,getProjectNameVar(),getSimulationNameVar())
+    if(!is.null(getYCache)){
+      getYCache$getY()
+    }
+    
   })
   
   getZ <- reactive({
-    mongoHelper$findOneCache(input$selectX,input$selectY,input$selectZ)$getZ()
+    getZCache <- mongoHelper$findOneCache(input$selectX,input$selectY,input$selectZ,getProjectNameVar(),getSimulationNameVar())
+    if(!is.null(getZCache)){
+      getZCache$getZ()
+    }
+    
   })
   
   callService <- reactive({
@@ -122,27 +134,36 @@ shinyServer(function(input, output,session) {
   })
   
   observe({
-    
+    ##browser()
     print("plot")
-    
+
     #observer coord selection changed
     if(input$selectZ=="Select"){
       output$plotGraphics <- renderPlot({ 
+        ##browser()
         plot.new()
         print(input$selectX)
         print(input$selectY)
-        plot(getX(),getY(),xlab=input$selectX,ylab=input$selectY,type="o")
+        x <- getX()
+        y <- getY()
+        if(!is.null(x) && !is.null(y)){
+          plot(x,y,xlab=input$selectX,ylab=input$selectY,type="o")  
+        }
+        
       }) 
       output$scatterplot <- renderScatterplotThree({
+        ##browser()
         scatterplot3js <- NULL
       })
     }else{
       output$plotGraphics <- renderPlot({ 
+        ##browser()
         plot.new()
         scatterplot3d(getX(),getY(),getZ(), main="3D View")
       }) 
       
       output$scatterplot <- renderScatterplotThree({
+        ###browser()
         scatterplot3js <- scatterplot3js(getX(),getY(),getZ(), color=rainbow(length(getZ())))
       })
     }

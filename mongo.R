@@ -2,10 +2,14 @@
 parametersSchemaVar <- "sifem.TransformationTO"
 dataSetCacheSchemaVar <- "sifem.DataSetHashCacheTO"
 projectNameVar <- "PROJECTTEST"
+simulationNameVar <- "SIMULATIONUNITTEST"
 hostDesenv <- "127.0.0.1"
 usernameDesenv <-""
 passwordDesenv <- ""
 dbDesenv = "sifem"
+xValues <- list()
+yValues <- list()
+zValues <- list()
 
 # parametersSchemaVar <- "multivision_jbjares.TransformationTO"
 # dataSetCacheSchemaVar <- "multivision_jbjares.DataSetHashCacheTO"
@@ -25,67 +29,149 @@ mongoHelper <- list(
      return(mongo)
     },
                                                                                                       
-    findOneCache = function(xName,yName,zName=NULL,projectName=projectNameVar,conn=mongo,dataSetCache=dataSetCacheSchemaVar){
-      buf <- mongo.bson.buffer.create()
-      if(!is.null(projectName) && projectName!=""){
-        mongo.bson.buffer.append(buf, "projectName",projectName)
-      }
+    findOneCache = function(xName,yName,zName=NULL,projectName=projectNameVar,simulationName=simulationNameVar,conn=mongo,dataSetCache=dataSetCacheSchemaVar){
 
+      #browser()
+      
       if(xName=="Select"){
-        paste("You must select at least Y and Z to show 2D view.")
-#         validate(
-#           need(xName,"You must select at least Y and Z to show 2D view.")
-#         )
-        stop()
+        print("You must select at least Y and Z to show 2D view.")
+        return(NULL)
       }
       if(yName=="Select"){
-        paste("You must select at least Y and Z to show 2D view.")
-#         validate(
-#           need(yName,"You must select at least Y and Z to show 2D view.")
-#         )
-        stop()
+        print("You must select at least Y and Z to show 2D view.")
+        return(NULL)
       }
+      
+
+      buf <- mongo.bson.buffer.create()
+      if(!is.null(projectName) && projectName!=""){
+        projectName <- projectNameVar;
+        mongo.bson.buffer.append(buf, "projectName",projectName)
+      }
+      if(!is.null(simulationName) && simulationName!=""){
+        simulationName <- simulationNameVar;
+        mongo.bson.buffer.append(buf, "simulationName",simulationName)
+      }
+      
       mongo.bson.buffer.append(buf, "xName", xName)
       mongo.bson.buffer.append(buf, "yName", yName)
       if(!is.null(zName) && zName!="" && zName!="Select"){
         mongo.bson.buffer.append(buf, "zName", zName)
       }
       if(is.null(zName) || zName=="Select"){
-        paste("Try select Z option to show 3D view.")
-#         validate(
-#           need(zName,"Try select Z option to show 3D view.")
-#         )
+        print("Try select Z option to show 3D view.")
       }
       
-
+      
+      
       query <- mongo.bson.from.buffer(buf)
-      bson <- mongo.find.one(conn,dataSetCache,query)
-      if(class(bson)!="mongo.bson"){
-        paste("Result not defined for query: ",query)
-#         validate(
-#           need(query,"Result not defined for query")
-#         )
-        stop()
+      yAndYQueryReturn <- mongo.find.one(conn,dataSetCache,query)
+      
+      print(paste0("before map"))
+      
+      print(paste0("class(yAndYQueryReturn)==mongo.bson: ",class(yAndYQueryReturn)=="mongo.bson"))
+      print(paste0("class(yAndYQueryReturn): ",class(yAndYQueryReturn)))
+      print(paste0("xName: ",xName))
+      print(paste0("yName: ",yName))
+      print(paste0("zName: ",zName))
+      print(paste0("projectName: ",projectName))
+      print(paste0("simulationName: ",simulationName))
+      print(paste0("dataSetCache: ",dataSetCache))
+    
+
+      
+      if(class(yAndYQueryReturn)!="mongo.bson"){
+        print(paste0("into map"))
+        #if query based on x and y names doesn't retreives anything, try the query based on project and simulation name
+        #browser()
+        buf <- NULL
+        query <- NULL
+        buf <- mongo.bson.buffer.create()
+        mongo.bson.buffer.append(buf, "projectName",projectNameVar)
+        mongo.bson.buffer.append(buf, "xName",NULL)
+        mongo.bson.buffer.append(buf, "yName",NULL)
+        
+        query <- mongo.bson.from.buffer(buf)
+        tmp <- mongo.find.one(conn,dataSetCache,query)
+        tmpList <- mongo.bson.to.list(tmp)["viewTO"]
+        viewTOList <- tmpList$viewTO
+        
+        if(length(viewTOList$xView)>0){
+          print("Data set is not properly well defined. Try contact the system admin, and ask about code [ERR0001]")
+          return(NULL)
+        }
+        if(length(viewTOList$yView)>0){
+          print("Data set is not properly well defined. Try contact the system admin, and ask about code [ERR0002]")
+          return(NULL)
+        }
+        if(length(viewTOList$zView>0)){
+          print("Data set is not properly well defined. Try contact the system admin, and ask about code [ERR0003]")
+          return(NULL)
+        }
+        if(length(viewTOList$dimValMap)<=0){
+          print("Data set is not properly well defined. Try contact the system admin, and ask about code [ERR0004]")
+          return(NULL)
+        }
+        
+        map <- viewTOList$dimValMap
+        newAttributes <- as.list(names(map))
+        
+        xValues <- map[xName]
+        yValues <- map[yName]
+        zValues <- map[zName]
+        
+        
+        
+        if(class(tmp)!="mongo.bson"){
+          print("Result not defined for query.")
+          return(NULL)
+        }
+        
+        
+        
       }
       
       return(
         
         list(
-            doubleList <- mongo.bson.to.list(bson),      
             getX = function(){
-              doubleListX = doubleList$viewTO$xView;
-              doubleListXNumeric = as.numeric(unlist(doubleListX))
-              return(doubleListXNumeric);
+              if(length(xValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListX = doubleList$viewTO$xView
+                doubleListXNumeric = as.numeric(unlist(doubleListX))
+                return(doubleListXNumeric)
+              }
+              if(length(xValues)>0){
+                xValuesResult <- as.numeric(unlist(xValues))
+                return(xValuesResult)
+              }
+
             },
             getY = function(){
-              doubleListY = doubleList$viewTO$yView;
-              doubleListYNumeric = as.numeric(unlist(doubleListY))
-              return(doubleListYNumeric);
+              if(length(yValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListY = doubleList$viewTO$yView
+                doubleListYNumeric = as.numeric(unlist(doubleListY))
+                return(doubleListYNumeric)
+              }
+              if(length(yValues)>0){
+                yValuesResult <- as.numeric(unlist(yValues))
+                return(yValuesResult)
+              }
+
             },
             getZ = function(){
-              doubleListZ = doubleList$viewTO$zView;
-              doubleListZNumeric = as.numeric(unlist(doubleListZ))
-              return(doubleListZNumeric);
+              if(length(zValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListZ = doubleList$viewTO$zView
+                doubleListZNumeric = as.numeric(unlist(doubleListZ))
+                return(doubleListZNumeric)
+              }
+              if(length(zValues)>0){
+                zValuesResult <- as.numeric(unlist(zValues))
+                return(zValuesResult)
+              }
+
             }
           
           )
@@ -94,13 +180,6 @@ mongoHelper <- list(
       
     },
   
-#  makeList = function(vec) {
-#    vec <- mongo.bson.to.list(bson)$parameters
-#    len <- length(vec[-1])
-#    out <- as.list(rep(as.numeric(vec[1]), len))
-#    names(out) <- as.character(vec[-1])
-#    out
-#  },
   
   findAllAttributes = function(parametersSchema=parametersSchemaVar,projectName="TheOne",conn=mongo){
     buf <- mongo.bson.buffer.create()
