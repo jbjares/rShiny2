@@ -1,9 +1,20 @@
-
+if(!("rmongodb" %in% rownames(installed.packages()))){
+  library(devtools)
+  #install_github(repo = "mongosoup/rmongodb")
+  install.packages("rmongodb")  
+}
 parametersSchemaVar <- "sifem.TransformationTO"
 dataSetCacheSchemaVar <- "sifem.DataSetHashCacheTO"
-projectNameVar <- "PROJECTTEST"
-simulationNameVar <- "SIMULATIONUNITTEST"
-hostDesenv <- "127.0.0.1"
+#projectNameVar <- "PROJECTTEST"
+#simulationNameVar <- "SIMULATIONUNITTEST"
+# hostDesenv <- "192.168.3.13:27017"
+# usernameDesenv <-"deri"
+# passwordDesenv <- "n1kon,c@mera"
+
+
+
+#desenv
+hostDesenv <- "127.0.0.1:27017"
 usernameDesenv <-""
 passwordDesenv <- ""
 dbDesenv = "sifem"
@@ -11,13 +22,6 @@ xValues <- list()
 yValues <- list()
 zValues <- list()
 
-# parametersSchemaVar <- "multivision_jbjares.TransformationTO"
-# dataSetCacheSchemaVar <- "multivision_jbjares.DataSetHashCacheTO"
-# projectNameVar <- "PROJECTTEST"
-# hostDesenv <- "ds061371.mongolab.com:61371"
-# usernameDesenv <-"jbjares"
-# passwordDesenv <- "multivision"
-# dbDesenv = "multivision_jbjares"
 
 
 
@@ -29,7 +33,7 @@ mongoHelper <- list(
      return(mongo)
     },
                                                                                                       
-    findOneCache = function(xName,yName,zName=NULL,projectName=projectNameVar,simulationName=simulationNameVar,conn=mongo,dataSetCache=dataSetCacheSchemaVar){
+    findOneCache = function(xName,yName,zName=NULL,projectId=projectId,simulationName=simulationNameVar,conn=mongo,dataSetCache=dataSetCacheSchemaVar){
 
       #browser()
       
@@ -44,14 +48,10 @@ mongoHelper <- list(
       
 
       buf <- mongo.bson.buffer.create()
-      if(!is.null(projectName) && projectName!=""){
-        projectName <- projectNameVar;
-        mongo.bson.buffer.append(buf, "projectName",projectName)
+      if(!is.null(projectId) && projectId!=""){
+        mongo.bson.buffer.append(buf, "projectId",projectId)
       }
-      if(!is.null(simulationName) && simulationName!=""){
-        simulationName <- simulationNameVar;
-        mongo.bson.buffer.append(buf, "simulationName",simulationName)
-      }
+
       
       mongo.bson.buffer.append(buf, "xName", xName)
       mongo.bson.buffer.append(buf, "yName", yName)
@@ -67,27 +67,14 @@ mongoHelper <- list(
       query <- mongo.bson.from.buffer(buf)
       yAndYQueryReturn <- mongo.find.one(conn,dataSetCache,query)
       
-      print(paste0("before map"))
-      
-      print(paste0("class(yAndYQueryReturn)==mongo.bson: ",class(yAndYQueryReturn)=="mongo.bson"))
-      print(paste0("class(yAndYQueryReturn): ",class(yAndYQueryReturn)))
-      print(paste0("xName: ",xName))
-      print(paste0("yName: ",yName))
-      print(paste0("zName: ",zName))
-      print(paste0("projectName: ",projectName))
-      print(paste0("simulationName: ",simulationName))
-      print(paste0("dataSetCache: ",dataSetCache))
-    
 
       
       if(class(yAndYQueryReturn)!="mongo.bson"){
         print(paste0("into map"))
-        #if query based on x and y names doesn't retreives anything, try the query based on project and simulation name
-        #browser()
         buf <- NULL
         query <- NULL
         buf <- mongo.bson.buffer.create()
-        mongo.bson.buffer.append(buf, "projectName",projectNameVar)
+        # mongo.bson.buffer.append(buf, "projectId",projectId)
         mongo.bson.buffer.append(buf, "xName",NULL)
         mongo.bson.buffer.append(buf, "yName",NULL)
         
@@ -172,18 +159,161 @@ mongoHelper <- list(
                 return(zValuesResult)
               }
 
+            },
+            
+            #1 - BMVelocityMagnitudeButton
+            getBMVelocityMagnitudeX = function(){
+              if(length(xValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListX = doubleList$viewTO$xView
+                doubleListXNumeric = as.numeric(unlist(doubleListX))
+                return(doubleListXNumeric)
+              }
+              if(length(xValues)>0){
+                xValuesResult <- as.numeric(unlist(xValues))
+                return(xValuesResult)
+              }
+              
+            },
+            getBMVelocityMagnitudeY = function(){
+              if(length(yValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListY = doubleList$viewTO$yView
+                doubleListYNumeric = as.numeric(unlist(doubleListY))
+                return(doubleListYNumeric)
+              }
+              if(length(yValues)>0){
+                yValuesResult <- as.numeric(unlist(yValues))
+                return(yValuesResult)
+              }
+              
+            },
+            
+            #2 - BMVelocityPhaseButton
+            getBMVelocityPhaseX = function(){
+              if(length(xValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListX = doubleList$viewTO$xView
+                doubleListXNumeric = as.numeric(unlist(doubleListX))
+                return(doubleListXNumeric)
+              }
+              if(length(xValues)>0){
+                xValuesResult <- as.numeric(unlist(xValues))
+                return(xValuesResult)
+              }
+              
+            },
+            getBMVelocityPhaseY = function(){
+              if(length(yValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListY = doubleList$viewTO$yView
+                doubleListYNumeric = as.numeric(unlist(doubleListY))
+                return(doubleListYNumeric)
+              }
+              if(length(yValues)>0){
+                yValuesResult <- as.numeric(unlist(yValues))
+                return(yValuesResult)
+              }
+              
+            },
+            
+            #3 - PressureRealPartButton
+            getPressureRealPartX = function(){
+              if(length(xValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListX = doubleList$viewTO$xView
+                doubleListXNumeric = as.numeric(unlist(doubleListX))
+                return(doubleListXNumeric)
+              }
+              if(length(xValues)>0){
+                xValuesResult <- as.numeric(unlist(xValues))
+                return(xValuesResult)
+              }
+              
+            },
+            getPressureRealPartY = function(){
+              if(length(yValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListY = doubleList$viewTO$yView
+                doubleListYNumeric = as.numeric(unlist(doubleListY))
+                return(doubleListYNumeric)
+              }
+              if(length(yValues)>0){
+                yValuesResult <- as.numeric(unlist(yValues))
+                return(yValuesResult)
+              }
+              
+            },
+            
+            #4 - PressureImaginaryPartButton
+            getPressureImaginaryPartX = function(){
+              if(length(xValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListX = doubleList$viewTO$xView
+                doubleListXNumeric = as.numeric(unlist(doubleListX))
+                return(doubleListXNumeric)
+              }
+              if(length(xValues)>0){
+                xValuesResult <- as.numeric(unlist(xValues))
+                return(xValuesResult)
+              }
+              
+            },
+            getPressureImaginaryPartY = function(){
+              if(length(yValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListY = doubleList$viewTO$yView
+                doubleListYNumeric = as.numeric(unlist(doubleListY))
+                return(doubleListYNumeric)
+              }
+              if(length(yValues)>0){
+                yValuesResult <- as.numeric(unlist(yValues))
+                return(yValuesResult)
+              }
+              
+            },
+            #5 - CenterlineButton
+            getCenterlineX = function(){
+              if(length(xValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListX = doubleList$viewTO$xView
+                doubleListXNumeric = as.numeric(unlist(doubleListX))
+                return(doubleListXNumeric)
+              }
+              if(length(xValues)>0){
+                xValuesResult <- as.numeric(unlist(xValues))
+                return(xValuesResult)
+              }
+              
+            },
+            getCenterlineY = function(){
+              if(length(yValues)==0 && class(yAndYQueryReturn)=="mongo.bson"){
+                doubleList <- mongo.bson.to.list(yAndYQueryReturn)
+                doubleListY = doubleList$viewTO$yView
+                doubleListYNumeric = as.numeric(unlist(doubleListY))
+                return(doubleListYNumeric)
+              }
+              if(length(yValues)>0){
+                yValuesResult <- as.numeric(unlist(yValues))
+                return(yValuesResult)
+              }
+              
             }
-          
+
           )
         
       )
       
     },
   
+
   
-  findAllAttributes = function(parametersSchema=parametersSchemaVar,projectName="TheOne",conn=mongo){
+  
+  findAllAttributes = function(parametersSchema=parametersSchemaVar,ids=ids,conn=mongo){
     buf <- mongo.bson.buffer.create()
-    mongo.bson.buffer.append(buf, "projectName",projectName )
+    if(!is.null(ids)){
+      mongo.bson.buffer.append(buf, id,ids )
+    }
     query <- mongo.bson.from.buffer(buf)  
     bson <- mongo.find.one(conn,parametersSchemaVar,query)
     #makeList
@@ -193,35 +323,7 @@ mongoHelper <- list(
     names(out) <- as.character(vec[-1])
     return(out)
   }
-#,
-#   isFindOneCacheInputValid = function(xName=NULL,yName=NULL,zName=NULL,projectName,conn,dataSetCache){
-#     if(!mongo.is.connected(conn)){
-#       print("Mongo connection is not available.")
-#       return(F)
-#     }
-#   
-#     if(is.null(dataSetCache) || dataSetCache==""){
-#       print("Please, input the name of the db and table.")
-#       return(F)
-#     }
-#     
-#     if(is.null(xName) || xName==""){
-#       print("Please, input the xName.")
-#       return(F)
-#     }
-#     if(is.null(yName) || yName==""){
-#       print("Please, input the yName")
-#       return(F)
-#     }
-# 
-#     if(is.null(projectName) || projectName==""){
-#       print("Please, input the projectName")
-#       return(F)
-#     }
-# 
-#     return(TRUE)
-#   }
-    
+
 
 )
 

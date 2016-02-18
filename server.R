@@ -21,7 +21,7 @@ shinyServer(function(input, output,session) {
   simulationName <- NULL
   xName <- NULL
   yName <- NULL
-
+  
   getQueryArgumentValues <- reactive({
     query <- parseQueryString(session$clientData$url_search)
     return(query)
@@ -29,7 +29,9 @@ shinyServer(function(input, output,session) {
 
    getInterpretationHostNameVar <- reactive({
      argumentValues <- getQueryArgumentValues()
+     #interpretationHostNameVar <- paste0(argumentValues["interpretationHostName"],"/Sifem/rest/semanticInterpretation/show/")
      interpretationHostNameVar <- paste0("http://",argumentValues["interpretationHostName"],"/Sifem/rest/semanticInterpretation/show/")
+     #interpretationHostNameVar <- paste0("http://192.168.7.146:8080","/Sifem/rest/semanticInterpretation/show/")
      return(interpretationHostNameVar)
    })
 
@@ -128,15 +130,73 @@ shinyServer(function(input, output,session) {
   })
   
   callService <- reactive({
+    #browser()
     print(interpretationHostNameVar)
     showInterpretationContent <- jsonlite::fromJSON(getCompletedServiceEndpoint(), simplifyVector = FALSE)  
     return(showInterpretationContent)
   })
   
+  ntext0 <- eventReactive(input$showInterpretationButton, {
+    #browser()
+    endpoint <- getCompletedServiceEndpoint()    
+    if(!is.null(endpoint) && endpoint!="" && !grepl("NULL",endpoint)){
+      showInterpretationContent <- callService()
+      print(showInterpretationContent$content)
+      paste(showInterpretationContent$content)
+      createAlert(session, "showInterpretationAlert_anchorId", "showInterpretationAlert_Id", title = "Semantic Interpretation", content = paste(showInterpretationContent$content), append = T)
+    }
+    
+  })
+  
+  ntext1 <- eventReactive(input$BMVelocityMagnitudeButton, {
+    x <- getBMVelocityMagnitudeX()
+    y <- getBMVelocityMagnitudeY()
+    if(!is.null(x) && !is.null(y)){
+      plot(x,y,xlab=input$selectX,ylab=input$selectY,type="o")  
+    }            
+  })
+  
+  ntext2 <- eventReactive(input$BMVelocityPhaseButton, {
+    x <- getBMVelocityPhaseX()
+    y <- getBMVelocityPhaseY()
+    if(!is.null(x) && !is.null(y)){
+      plot(x,y,xlab=input$selectX,ylab=input$selectY,type="o")  
+    }        
+  })
+  
+  ntext3 <- eventReactive(input$PressureRealPartButton, {
+    x <- getPressureRealPartX()
+    y <- getPressureRealPartY()
+    if(!is.null(x) && !is.null(y)){
+      plot(x,y,xlab=input$selectX,ylab=input$selectY,type="o")  
+    }        
+  })
+  
+  ntext4 <- eventReactive(input$PressureImaginaryPartButton, {
+    x <- getPressureImaginaryPartX()
+    y <- getPressureImaginaryPartY()
+    if(!is.null(x) && !is.null(y)){
+      plot(x,y,xlab=input$selectX,ylab=input$selectY,type="o")  
+    }    
+  })
+  
+  ntext5 <- eventReactive(input$CenterlineButton, {
+    x <- getCenterlineX()
+    y <- getCenterlineY()
+    if(!is.null(x) && !is.null(y)){
+      plot(x,y,xlab=input$selectX,ylab=input$selectY,type="o")  
+    }
+    
+  })
+  
+  observe({
+  ntext0()
+  })
+  
   observe({
     ##browser()
     print("plot")
-
+    #ntext()
     #observer coord selection changed
     if(input$selectZ=="Select"){
       output$plotGraphics <- renderPlot({ 
@@ -173,22 +233,8 @@ shinyServer(function(input, output,session) {
     
   })
 
-  observe({
-    #obersver show interpretation changed
-    endpoint <- getCompletedServiceEndpoint()    
-    print(endpoint)
-    print("1")
-    if(!is.null(endpoint) && endpoint!="" && !grepl("NULL",endpoint)){
-      print("2")
-      if (input$showInterpretationButton > 0){
-        showInterpretationContent <- callService()
-        print(showInterpretationContent$content)
-        paste(showInterpretationContent$content)
-        createAlert(session, "showInterpretationAlert_anchorId", "showInterpretationAlert_Id", title = "Semantic Interpretation", content = paste(showInterpretationContent$content), append = T)
-      }
-    }
-    
-  })
+
+
 
 
 

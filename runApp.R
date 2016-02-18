@@ -1,3 +1,4 @@
+source("mainScript.R")
 library(shiny)
 main <- function(){
   require(shiny)

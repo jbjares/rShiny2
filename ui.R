@@ -22,9 +22,13 @@ shinyUI(navbarPage("",
                    tabPanel(
                      selectInput("selectZ", label = h3("coord z"), choices = attribs, selected = 1)
                    ),
-                   navbarMenu("More",
+                   navbarMenu("Results",
                               tabPanel(actionButton("showInterpretationButton", label = "Show Semantic Interpretation")),
-                              tabPanel(actionButton("createQueryButton", label = "Query Input"))
+                               tabPanel(actionButton("BMVelocityMagnitudeButton", label = "BM Velocity Magnitude")),
+                               tabPanel(actionButton("BMVelocityPhaseButton", label = "BM Velocity Phase")),
+                               tabPanel(actionButton("PressureRealPartButton", label = "Pressure - Real Part")),
+                               tabPanel(actionButton("PressureImaginaryPartButton", label = "Pressure - Imaginary Part")),
+                               tabPanel(actionButton("CenterlineButton", label = "Centerline"))
                    ),
 
   mainPanel(
